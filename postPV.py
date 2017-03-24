@@ -200,10 +200,10 @@ if __name__ == '__main__':
             if i == 0:
                 src_log = "/data/log/jiemo-api/postPV/postPV.log"
             else:
-                src_log = "/data/log/jiemo-api/postPV/postPV." + date_format + ".log"
+                src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
 
             if is_current_host:
-                cmd = "mv " + src_log + "  " + desc_log
+                cmd = "cp " + src_log + "  " + desc_log
             else:
                 cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
 
