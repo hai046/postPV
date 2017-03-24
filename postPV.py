@@ -193,7 +193,7 @@ if __name__ == '__main__':
         ip = str(info[4][0])
         is_current_host = currentIP.find(ip) >= 0
 
-        for i in range(0, 7):
+        for i in range(0, 4):
             date_format = (now + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
             desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
             src_log = ""
