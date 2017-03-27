@@ -267,7 +267,7 @@ def initPostList(baseDir):
 if __name__ == '__main__':
     Logger();
     start_time = datetime.datetime.now()
-
+    PRINT_INFO = len(sys.argv) > 1;
     if not Config().isProductionEnvironment():
         MIN_SCORE = 1
         MIN_PV_COUNT = 2;
