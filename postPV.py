@@ -2,6 +2,7 @@
 import os
 import socket
 import sys
+from json import JSONEncoder
 
 import datetime
 
@@ -143,8 +144,8 @@ def readPVLog(baseDir, postCountLog):
 
                     else:
                         pv_counts[postId] = 1
-
         f.close()
+        break
 
     print max_pv_count
     count = 0;
@@ -155,7 +156,7 @@ def readPVLog(baseDir, postCountLog):
             if count > 200:
                 break
             count += 1;
-            print "|", count, "|", "https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k, "|", v, "|"
+            print "|", count, "|", "[" + k + "](https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|"
 
     # 开始求权值排名
     score_result = {}
@@ -180,7 +181,7 @@ def readPVLog(baseDir, postCountLog):
 
     score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
 
-    if True:
+    if PRINT_INFO:
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
@@ -188,7 +189,7 @@ def readPVLog(baseDir, postCountLog):
             count += 1
             # if post_types[k] != 10:
             #     continue
-            print "|", count, "|", "https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k, "|", v, "|", \
+            print "|", count, "|", "[" + k + "](https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
                 pv_counts[k], "|", post_score[k], "|", \
                 pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
                 timeDescFactor(post_create_times[k]), "|", post_types[k], "|"
@@ -200,47 +201,51 @@ def readPVLog(baseDir, postCountLog):
 if __name__ == '__main__':
     args_lg = len(sys.argv)
 
-    # baseDir = "/Users/haizhu/Downloads/result/result/postPV";
-    now = datetime.datetime.now()
-    # host = "search.d.jiemoapp.com"
-    host = "cluster.d.jiemoapp.com"
+    baseDir = "/Users/haizhu/Downloads/result/result/postPV";
 
-    baseDir = "/data/postPV"
+    if True:
+        now = datetime.datetime.now()
+        # host = "search.d.jiemoapp.com"
+        host = "cluster.d.jiemoapp.com"
 
-    os.system("rm -rf " + baseDir)
-    os.makedirs(baseDir)
+        baseDir = "/data/postPV"
 
-    currentIP = os.popen("ifconfig").read()
+        os.system("rm -rf " + baseDir)
+        os.makedirs(baseDir)
 
-    hasFile = True
-    postPVFiles = []
+        currentIP = os.popen("ifconfig").read()
 
-    for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
-                                   socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
-        ip = str(info[4][0])
-        is_current_host = currentIP.find(ip) >= 0
+        hasFile = True
+        postPVFiles = []
 
-        for i in range(0, 4):
-            date_format = (now + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
-            desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
-            src_log = ""
-            if i == 0:
-                src_log = "/data/log/jiemo-api/postPV/postPV.log"
-            else:
-                src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
+        for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
+                                       socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
+            ip = str(info[4][0])
+            is_current_host = currentIP.find(ip) >= 0
 
-            if is_current_host:
-                cmd = "cp " + src_log + "  " + desc_log
-            else:
-                if os.path.exists(desc_log):
-                    print "exists path", desc_log, "skip"
-                    continue
-                cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
+            for i in range(0, 4):
+                date_format = (now + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
+                desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
+                src_log = ""
+                if i == 0:
+                    src_log = "/data/log/jiemo-api/postPV/postPV.log"
+                else:
+                    src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
 
-            print cmd
-            print os.popen(cmd).read()
-    # exit(0)
-    # / data / log / postCounts_03 - 23_15.log
+                if is_current_host:
+                    cmd = "cp " + src_log + "  " + desc_log
+                else:
+                    if os.path.exists(desc_log):
+                        print "exists path", desc_log, "skip"
+                        continue
+                    cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
+
+                print cmd
+                print os.popen(cmd).read()
     if args_lg != 2:
         print args_lg, "params err must use : xxx.py  postPVLogPath  postCountLog"
     score_result = readPVLog(baseDir, sys.argv[1])
+    resultJson = {}
+    resultJson["time"] = long(time.time() * 1000)
+    resultJson["list"] = score_result
+    print JSONEncoder().encode(resultJson)
