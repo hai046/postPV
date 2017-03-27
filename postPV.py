@@ -27,6 +27,8 @@ import time
 # song(9, AppVer.VER_1_2_80, "音乐"), // 歌曲
 # blog(10, AppVer.VER_1_2_80, "日志"), // 日志
 # customVideo(11, AppVer.VER_1_3_10, "视频"), // 新的视频类型
+
+##每个post类型对应的权值
 POST_TYPE_SCORE = {1: 1.,
                    2: 1.2,
                    3: 1,
@@ -39,9 +41,13 @@ POST_TYPE_SCORE = {1: 1.,
                    10: 22.,
                    11: 1.8}
 
+# 每个操作对应的基础值
 POST_FORWORD_BASE_SCORE = 4.0;
 POST_COMMENT_BASE_SCORE = 2.0
 POST_FAV_BASE_SCORE = 1.0
+
+# 是否打印中间信息
+PRINT_INFO = False
 
 
 # pv影响影响因子 例如pv越大数值越可靠 范围[50,100]
@@ -60,9 +66,6 @@ def timeDescFactor(currentTime):
     if MAX_MINU <= currentTime:
         return 0
     return 100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2)
-
-
-PRINT_INFO = False
 
 
 def readPVLog(baseDir, postCountLog):
@@ -203,6 +206,7 @@ if __name__ == '__main__':
 
     baseDir = "/Users/haizhu/Downloads/result/result/postPV";
 
+    # 是否是外网
     if True:
         now = datetime.datetime.now()
         # host = "search.d.jiemoapp.com"
