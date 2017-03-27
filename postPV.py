@@ -36,7 +36,7 @@ POST_TYPE_SCORE = {1: 1.,
                    7: 0,
                    8: 2.2,
                    9: 1.6,
-                   10: 20.2,
+                   10: 22.,
                    11: 1.8}
 
 POST_FORWORD_BASE_SCORE = 4.0;
