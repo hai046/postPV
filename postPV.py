@@ -145,7 +145,6 @@ def readPVLog(baseDir, postCountLog):
                     else:
                         pv_counts[postId] = 1
         f.close()
-        break
 
     print max_pv_count
     count = 0;
@@ -199,6 +198,8 @@ def readPVLog(baseDir, postCountLog):
 
 
 if __name__ == '__main__':
+
+    s = datetime.datetime.now()
     args_lg = len(sys.argv)
 
     baseDir = "/Users/haizhu/Downloads/result/result/postPV";
@@ -246,7 +247,8 @@ if __name__ == '__main__':
     if args_lg != 2:
         print args_lg, "params err must use : xxx.py  postPVLogPath  postCountLog"
     score_result = readPVLog(baseDir, sys.argv[1])
-    resultJson = {}
-    resultJson["time"] = long(time.time() * 1000)
-    resultJson["list"] = score_result
-    print JSONEncoder().encode(resultJson)
+    # resultJson = {}
+    # resultJson["time"] = long(time.time() * 1000)
+    # resultJson["list"] = score_result
+    # print JSONEncoder().encode(resultJson)
+    print "cost time", datetime.datetime.now() - s
