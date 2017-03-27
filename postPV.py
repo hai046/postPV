@@ -178,7 +178,7 @@ def readPVLog(baseDir, postCountLog):
                 count += 1
                 print "|", count, "|", k, "|", v, "|"
 
-    if PRINT_INFO:
+    if True:
         score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
