@@ -57,6 +57,10 @@ PRINT_INFO = False
 # 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
 MAX_MINU = 3 * 24 * 60.
 
+MIN_SCORE = 20;
+
+MIN_PV_COUNT = 100
+
 
 # pv影响影响因子 例如pv越大数值越可靠 范围[50,100]
 def pvCountFactor(currentPVCount, maxPVCount):
@@ -174,9 +178,9 @@ def readPVLog(baseDir, postCountLog):
         count = 0;
 
     for k, v in sorted(post_score.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
-        if v >= 20.0 and pv_counts.has_key(k):
+        if v >= MIN_SCORE and pv_counts.has_key(k):
             pvc = pv_counts[k]
-            if pvc < 100:
+            if pvc < MIN_PV_COUNT:
                 continue
 
             if forword_post_scores.has_key(k):  # 如果有转发的权值  也加到源post里面
@@ -260,11 +264,13 @@ def initPostList(baseDir):
 
 
 if __name__ == '__main__':
-
     Logger();
-
     start_time = datetime.datetime.now()
-    args_lg = len(sys.argv)
+
+    if not Config().isProductionEnvironment():
+        MIN_SCORE = 1
+        MIN_PV_COUNT = 2;
+        pass
 
     baseDir = "/data/postPV"
 
@@ -285,4 +291,7 @@ if __name__ == '__main__':
     codis.zadd(key, **score_result)
     # logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.close()
+    cost_time = datetime.datetime.now() - start_time
+    print "cost time", cost_time
+    logger.info("cost time %s", cost_time)
     exit(0)
