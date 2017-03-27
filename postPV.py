@@ -52,7 +52,7 @@ def pvCountFactor(currentPVCount, maxPVCount):
 
 
 # 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
-MAX_MINU = 1 * 24 * 60.
+MAX_MINU = 3 * 24 * 60.
 
 
 def timeDescFactor(currentTime):
@@ -253,3 +253,5 @@ if __name__ == '__main__':
     # resultJson["list"] = score_result
     # print JSONEncoder().encode(resultJson)
     print "cost time", datetime.datetime.now() - s
+
+    exit(0)
