@@ -215,9 +215,6 @@ def readPVLog(baseDir, postCountLog):
 
 def initPVLog(baseDir):
     host = "cluster.d.jiemoapp.com"
-    # 是否是外网
-    if not Config().isProductionEnvironment():
-        host = "search.d.jiemoapp.com"
 
     # os.system("rm -rf " + baseDir)
     if not os.path.exists(baseDir):
