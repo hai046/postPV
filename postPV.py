@@ -62,7 +62,7 @@ def timeDescFactor(currentTime):
     return 100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2)
 
 
-PRINT_INFO = True
+PRINT_INFO = False
 
 
 def readPVLog(baseDir, postCountLog):
@@ -178,9 +178,8 @@ def readPVLog(baseDir, postCountLog):
                 count += 1
                 print "|", count, "|", k, "|", v, "|"
 
-    score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
-
     if PRINT_INFO:
+        score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
