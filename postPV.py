@@ -1,18 +1,16 @@
 # -*- coding: utf8
+import logging
 import os
 import socket
 import sys
-from json import JSONEncoder
 
 import datetime
-import logging
 
 from pycodis.JiemoCodis import JimeoCodis
 
 reload(sys)
 # 2017/3/23 10:15
 __author__ = 'haizhu'
-import pycodis.JiemoConfig
 
 import math
 import time
@@ -55,16 +53,16 @@ POST_FAV_BASE_SCORE = 1.0
 # 是否打印中间信息
 PRINT_INFO = False
 
+# 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
+MAX_MINU = 3 * 24 * 60.
+
 
 # pv影响影响因子 例如pv越大数值越可靠 范围[50,100]
 def pvCountFactor(currentPVCount, maxPVCount):
     # print currentPVCount, maxPVCount
     # y = (1 + sin(π * ((x - 2500) / 5000)))
     return 100 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2)
-
-
-# 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
-MAX_MINU = 3 * 24 * 60.
+    pass
 
 
 def timeDescFactor(currentTime):
@@ -72,6 +70,7 @@ def timeDescFactor(currentTime):
     if MAX_MINU <= currentTime:
         return 0
     return 100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2)
+    pass
 
 
 def readPVLog(baseDir, postCountLog):
@@ -181,8 +180,11 @@ def readPVLog(baseDir, postCountLog):
 
             if forword_post_scores.has_key(k):  # 如果有转发的权值  也加到源post里面
                 v += forword_post_scores[k]
-            score_result[k] = timeDescFactor(post_create_times[k]) * pvCountFactor(currentPVCount=pvc,
-                                                                                   maxPVCount=max_pv_count) * v / pvc
+            sv = timeDescFactor(post_create_times[k]) * pvCountFactor(currentPVCount=pvc,
+                                                                      maxPVCount=max_pv_count) * v / pvc
+            if sv <= 0:
+                continue
+            score_result[k] = sv
             if PRINT_INFO:
                 count += 1
                 print "|", count, "|", k, "|", v, "|"
@@ -203,81 +205,83 @@ def readPVLog(baseDir, postCountLog):
             # if count > 500:
             #     break
     return score_result
+    pass
+
+
+def initPVLog(baseDir):
+    host = "cluster.d.jiemoapp.com"
+    # 是否是外网
+    if not pycodis.JiemoConfig.Config().isProductionEnvironment():
+        host = "search.d.jiemoapp.com"
+
+    # os.system("rm -rf " + baseDir)
+    if not os.path.exists(baseDir):
+        os.makedirs(baseDir)
+
+    currentIP = os.popen("ifconfig").read()
+
+    for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
+                                   socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
+        ip = str(info[4][0])
+        is_current_host = currentIP.find(ip) >= 0
+
+        for i in range(0, 4):
+            date_format = (start_time + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
+            desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
+            src_log = ""
+            if i == 0:
+                src_log = "/data/log/jiemo-api/postPV/postPV.log"
+            else:
+                src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
+                if os.path.exists(desc_log):
+                    print "exists path", desc_log, "skip"
+                    continue
+
+            if is_current_host:
+                cmd = "cp " + src_log + "  " + desc_log
+            else:
+
+                cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
+
+            logger.info(cmd)
+            logger.info(os.popen(cmd).read())
+    pass
+
+
+def initPostList(baseDir):
+    result_path = os.path.join(baseDir, "postList.log")
+    logger.info(os.popen(
+        "/root/shell/runEx.sh /data/java/jiemo-runner "
+        "\"com.jiemo.runner.stats.PostScorePVAnalysisRunner 72 +" + result_path + " \"").read())
+    logger.info("get post list path=%s", result_path)
+    return result_path
+    pass
 
 
 if __name__ == '__main__':
 
     pycodis.jiemo_logger.Logger();
 
-    s = datetime.datetime.now()
+    start_time = datetime.datetime.now()
     args_lg = len(sys.argv)
 
-    baseDir = "/Users/haizhu/Downloads/result/result/postPV";
+    baseDir = "/data/postPV"
 
-    # 是否是外网
-    if pycodis.JiemoConfig.Config().isProductionEnvironment():
-        now = datetime.datetime.now()
-        # host = "search.d.jiemoapp.com"
-        host = "cluster.d.jiemoapp.com"
+    initPVLog(baseDir)
 
-        baseDir = "/data/postPV"
-
-        # os.system("rm -rf " + baseDir)
-        if not os.path.exists(baseDir):
-            os.makedirs(baseDir)
-
-        currentIP = os.popen("ifconfig").read()
-
-        hasFile = True
-        postPVFiles = []
-
-        for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
-                                       socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
-            ip = str(info[4][0])
-            is_current_host = currentIP.find(ip) >= 0
-
-            for i in range(0, 4):
-                date_format = (now + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
-                desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
-                src_log = ""
-                if i == 0:
-                    src_log = "/data/log/jiemo-api/postPV/postPV.log"
-                else:
-                    src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
-                    if os.path.exists(desc_log):
-                        print "exists path", desc_log, "skip"
-                        continue
-
-                if is_current_host:
-                    cmd = "cp " + src_log + "  " + desc_log
-                else:
-
-                    cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
-
-                logger.info(cmd)
-                logger.info(os.popen(cmd).read())
-    if args_lg != 2:
-        print args_lg, "params err must use : xxx.py  postPVLogPath  postCountLog"
-
-    score_result = readPVLog(baseDir, sys.argv[1])
-    resultJson = {}
-    resultJson["time"] = long(time.time() * 1000)
-    resultJson["list"] = score_result
+    score_result = readPVLog(baseDir, initPostList(baseDir))
 
     codis = JimeoCodis().getCodis();
     # 存储处理
-    codis_hmapping = {}
-    for k, v in score_result:
-        if v > 0:
-            codis_hmapping[k] = str(v);
-
-    key = "h.hplt"
-    logger.info("before %s", codis.hgetall(key));
+    key = "z.hplt"
     codis.delete(key)
-    if len(codis_hmapping) > 0:
-        codis.hmset(key, codis_hmapping);
-    else:
-        logger.info("没有值 不用向codis写入 过滤")
-    logger.info("after %s", codis.hgetall(key));
+
+    if len(score_result) < 1:
+        print "没有结果"
+        logger.info("没有结果")
+        exit(0)
+    # logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
+    codis.zadd(key, **score_result)
+    # logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.close()
     exit(0)
