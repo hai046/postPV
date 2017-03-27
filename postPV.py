@@ -195,11 +195,10 @@ def readPVLog(baseDir, postCountLog):
                 print "|", count, "|", k, "|", v, "|"
 
     if True:
-        score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)[:1000]
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
-        for k, v in score_result:
+        for k, v in sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
             count += 1
             # if post_types[k] != 10:
             #     continue
@@ -275,7 +274,6 @@ if __name__ == '__main__':
     initPVLog(baseDir)
 
     score_result = readPVLog(baseDir, initPostList(baseDir))
-
     codis = JimeoCodis().getCodis();
     # 存储处理
     key = "z.hplt"
