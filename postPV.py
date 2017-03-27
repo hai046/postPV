@@ -255,9 +255,10 @@ def initPVLog(baseDir):
 
 def initPostList(baseDir):
     result_path = os.path.join(baseDir, "postList.log")
-    logger.info(os.popen(
-        "/root/shell/runEx.sh /data/java/jiemo-runner "
-        "\"com.jiemo.runner.stats.PostScorePVAnalysisRunner 72 " + result_path + " \"").read())
+    cmd = "/root/shell/runEx.sh /data/java/jiemo-runner \"com.jiemo.runner.stats.PostScorePVAnalysisRunner 72 " + result_path + "\""
+    logger.info(cmd)
+
+    logger.info(os.popen(cmd).read())
     logger.info("get post list path=%s", result_path)
     return result_path
     pass
