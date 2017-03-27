@@ -6,7 +6,9 @@ import sys
 
 import datetime
 
-from pycodis.JiemoCodis import JimeoCodis
+from JiemoCodis import JimeoCodis
+from Jiemo_logger import Logger
+from JiemoConfig import Config
 
 reload(sys)
 # 2017/3/23 10:15
@@ -14,7 +16,6 @@ __author__ = 'haizhu'
 
 import math
 import time
-import pycodis.jiemo_logger
 
 logger = logging.getLogger()
 
@@ -211,7 +212,7 @@ def readPVLog(baseDir, postCountLog):
 def initPVLog(baseDir):
     host = "cluster.d.jiemoapp.com"
     # 是否是外网
-    if not pycodis.JiemoConfig.Config().isProductionEnvironment():
+    if not Config().isProductionEnvironment():
         host = "search.d.jiemoapp.com"
 
     # os.system("rm -rf " + baseDir)
@@ -260,7 +261,7 @@ def initPostList(baseDir):
 
 if __name__ == '__main__':
 
-    pycodis.jiemo_logger.Logger();
+    Logger();
 
     start_time = datetime.datetime.now()
     args_lg = len(sys.argv)
