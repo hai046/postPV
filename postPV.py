@@ -194,7 +194,7 @@ def readPVLog(baseDir, postCountLog):
                 count += 1
                 print "|", count, "|", k, "|", v, "|"
 
-    if True:
+    if PRINT_INFO:
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
