@@ -231,13 +231,14 @@ if __name__ == '__main__':
                     src_log = "/data/log/jiemo-api/postPV/postPV.log"
                 else:
                     src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
+                    if os.path.exists(desc_log):
+                        print "exists path", desc_log, "skip"
+                        continue
 
                 if is_current_host:
                     cmd = "cp " + src_log + "  " + desc_log
                 else:
-                    if os.path.exists(desc_log):
-                        print "exists path", desc_log, "skip"
-                        continue
+
                     cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
 
                 print cmd
