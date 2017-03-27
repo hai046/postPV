@@ -5,14 +5,20 @@ import sys
 from json import JSONEncoder
 
 import datetime
+import logging
+
+from pycodis.JiemoCodis import JimeoCodis
 
 reload(sys)
-sys.setdefaultencoding("utf-8")
 # 2017/3/23 10:15
 __author__ = 'haizhu'
+import pycodis.JiemoConfig
 
 import math
 import time
+import pycodis.jiemo_logger
+
+logger = logging.getLogger()
 
 # all(0, AppVer.VER_LATEST, "post"), // 这个是获取的时候使用，如果是all
 # 全部都获取出来，为以后朋友圈预留
@@ -114,7 +120,7 @@ def readPVLog(baseDir, postCountLog):
             else:
                 post_score[postId] = score
     f.close()
-    print "权值求和计算完成，共计", len(post_score), "条记录满足要求"
+    logger.info("权值求和计算完成，共计%d记录满足要求", len(post_score))
     # 权值求和计算完成
 
     # 求每个用户的权值和
@@ -125,9 +131,9 @@ def readPVLog(baseDir, postCountLog):
         f = open(os.path.join(baseDir, postPVLog))
 
         if postPVLog.startswith("."):
-            print "skip file ", f.name
+            logger.info("skip file %s", f.name)
             continue
-        print "read file ", f.name
+        logger.info("read file %s", f.name)
 
         line = f.readline().strip()
         while line:
@@ -149,7 +155,7 @@ def readPVLog(baseDir, postCountLog):
                         pv_counts[postId] = 1
         f.close()
 
-    print max_pv_count
+    logger.info("max_pv_count %d", max_pv_count)
     count = 0;
     if PRINT_INFO:
         print "|PV排名|postId|PV|"
@@ -182,7 +188,7 @@ def readPVLog(baseDir, postCountLog):
                 print "|", count, "|", k, "|", v, "|"
 
     if True:
-        score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
+        score_result = sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)[:1000]
         count = 0;
         print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
@@ -201,13 +207,15 @@ def readPVLog(baseDir, postCountLog):
 
 if __name__ == '__main__':
 
+    pycodis.jiemo_logger.Logger();
+
     s = datetime.datetime.now()
     args_lg = len(sys.argv)
 
     baseDir = "/Users/haizhu/Downloads/result/result/postPV";
 
     # 是否是外网
-    if True:
+    if pycodis.JiemoConfig.Config().isProductionEnvironment():
         now = datetime.datetime.now()
         # host = "search.d.jiemoapp.com"
         host = "cluster.d.jiemoapp.com"
@@ -246,15 +254,30 @@ if __name__ == '__main__':
 
                     cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
 
-                print cmd
-                print os.popen(cmd).read()
+                logger.info(cmd)
+                logger.info(os.popen(cmd).read())
     if args_lg != 2:
         print args_lg, "params err must use : xxx.py  postPVLogPath  postCountLog"
-    score_result = readPVLog(baseDir, sys.argv[1])
-    # resultJson = {}
-    # resultJson["time"] = long(time.time() * 1000)
-    # resultJson["list"] = score_result
-    # print JSONEncoder().encode(resultJson)
-    print "cost time", datetime.datetime.now() - s
 
+    score_result = readPVLog(baseDir, sys.argv[1])
+    resultJson = {}
+    resultJson["time"] = long(time.time() * 1000)
+    resultJson["list"] = score_result
+
+    codis = JimeoCodis().getCodis();
+    # 存储处理
+    codis_hmapping = {}
+    for k, v in score_result:
+        if v > 0:
+            codis_hmapping[k] = str(v);
+
+    key = "h.hplt"
+    logger.info("before %s", codis.hgetall(key));
+    codis.delete(key)
+    if len(codis_hmapping) > 0:
+        codis.hmset(key, codis_hmapping);
+    else:
+        logger.info("没有值 不用向codis写入 过滤")
+    logger.info("after %s", codis.hgetall(key));
+    codis.close()
     exit(0)
