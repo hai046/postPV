@@ -211,8 +211,9 @@ if __name__ == '__main__':
 
         baseDir = "/data/postPV"
 
-        os.system("rm -rf " + baseDir)
-        os.makedirs(baseDir)
+        # os.system("rm -rf " + baseDir)
+        if not os.path.exists(baseDir):
+            os.makedirs(baseDir)
 
         currentIP = os.popen("ifconfig").read()
 
