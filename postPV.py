@@ -270,7 +270,7 @@ if __name__ == '__main__':
     PRINT_INFO = len(sys.argv) > 1;
     if not Config().isProductionEnvironment():
         MIN_SCORE = 1
-        MIN_PV_COUNT = 2;
+        MIN_PV_COUNT = 1;
         pass
 
     baseDir = "/data/postPV"
