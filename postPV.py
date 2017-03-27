@@ -3,13 +3,15 @@ import os
 import socket
 import sys
 
+import datetime
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 # 2017/3/23 10:15
 __author__ = 'haizhu'
 
-import datetime
 import math
+import time
 
 # all(0, AppVer.VER_LATEST, "post"), // 这个是获取的时候使用，如果是all
 # 全部都获取出来，为以后朋友圈预留
@@ -33,7 +35,7 @@ POST_TYPE_SCORE = {1: 1.,
                    7: 0,
                    8: 2.2,
                    9: 1.6,
-                   10: 4.2,
+                   10: 20.2,
                    11: 1.8}
 
 POST_FORWORD_BASE_SCORE = 4.0;
@@ -41,25 +43,25 @@ POST_COMMENT_BASE_SCORE = 2.0
 POST_FAV_BASE_SCORE = 1.0
 
 
-# pv影响影响因子 例如pv越大数值越可靠 范围[0,100]
+# pv影响影响因子 例如pv越大数值越可靠 范围[50,100]
 def pvCountFactor(currentPVCount, maxPVCount):
     # print currentPVCount, maxPVCount
     # y = (1 + sin(π * ((x - 2500) / 5000)))
-    return (1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 0.02
+    return 100 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2)
 
 
 # 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
-MAX_MINU = 3 * 24 * 60.
+MAX_MINU = 1 * 24 * 60.
 
 
 def timeDescFactor(currentTime):
     # (cos(x * π / 168) + 1) / 2
-    if (MAX_MINU <= currentTime):
+    if MAX_MINU <= currentTime:
         return 0
-    return (math.cos(currentTime * math.pi / MAX_MINU) + 1) / 0.02
+    return 100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2)
 
 
-PRINT_INFO = False
+PRINT_INFO = True
 
 
 def readPVLog(baseDir, postCountLog):
@@ -67,16 +69,26 @@ def readPVLog(baseDir, postCountLog):
     f = open(postCountLog)
     line = f.readline()
     post_score = {}
+    forword_post_scores = {}
+
+    current_secords = time.time()
+
+    post_create_times = {}
+
     while line:
         line = line.strip()
         bases = line.split(" ")
         line = f.readline().strip()
-        if len(bases) == 5:
+        if len(bases) == 7:
             postId = (bases[0])
-            forword_count = int(bases[1])
-            fav_count = int(bases[2])
-            commend_count = int(bases[3])
-            commend_user_count = int(bases[4])
+            orgId = (bases[1])
+
+            create_time = long(bases[2])
+
+            forword_count = int(bases[3])
+            fav_count = int(bases[4])
+            commend_count = int(bases[5])
+            commend_user_count = int(bases[6])
             score = forword_count * POST_FORWORD_BASE_SCORE \
                     + fav_count * POST_FAV_BASE_SCORE \
                     + (commend_user_count + (
@@ -84,6 +96,15 @@ def readPVLog(baseDir, postCountLog):
             if score <= 0:
                 continue
 
+            if orgId != "0":
+                # 转发的，算到源post里面
+                if forword_post_scores.has_key(orgId):
+                    forword_post_scores[orgId] += score;
+                else:
+                    forword_post_scores[orgId] = score;
+                continue
+
+            post_create_times[postId] = (current_secords - create_time / 1000) / 60.
             if post_score.has_key(postId):
                 post_score[postId] += score
             else:
@@ -96,7 +117,6 @@ def readPVLog(baseDir, postCountLog):
     pv_counts = {};
     post_types = {}
     max_pv_count = 1;
-    start_time = datetime.datetime.now()
     for postPVLog in os.listdir(baseDir):
         f = open(os.path.join(baseDir, postPVLog))
 
@@ -149,7 +169,11 @@ def readPVLog(baseDir, postCountLog):
             pvc = pv_counts[k]
             if pvc < 100:
                 continue
-            score_result[k] = pvCountFactor(currentPVCount=pvc, maxPVCount=max_pv_count) * v / pvc
+
+            if forword_post_scores.has_key(k):  # 如果有转发的权值  也加到源post里面
+                v += forword_post_scores[k]
+            score_result[k] = timeDescFactor(post_create_times[k]) * pvCountFactor(currentPVCount=pvc,
+                                                                                   maxPVCount=max_pv_count) * v / pvc
             if PRINT_INFO:
                 count += 1
                 print "|", count, "|", k, "|", v, "|"
@@ -158,22 +182,25 @@ def readPVLog(baseDir, postCountLog):
 
     if True:
         count = 0;
-        print "\n|计算后权值排名|postId|score|pv|totalScore||"
-        print "|-|-|-|-|-|-|"
+        print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
+        print "|-|-|-|-|-|-|-|-|"
         for k, v in score_result:
             count += 1
+            # if post_types[k] != 10:
+            #     continue
             print "|", count, "|", "https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k, "|", v, "|", \
-                pv_counts[k], "|", post_score[k], "|", pvCountFactor(currentPVCount=pv_counts[k],
-                                                                     maxPVCount=max_pv_count), "|"
-            if count > 200:
-                break
+                pv_counts[k], "|", post_score[k], "|", \
+                pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
+                timeDescFactor(post_create_times[k]), "|", post_types[k], "|"
+            # if count > 500:
+            #     break
     return score_result
 
 
 if __name__ == '__main__':
     args_lg = len(sys.argv)
 
-    baseDir = "/Users/haizhu/Downloads/result/postPV";
+    # baseDir = "/Users/haizhu/Downloads/result/result/postPV";
     now = datetime.datetime.now()
     # host = "search.d.jiemoapp.com"
     host = "cluster.d.jiemoapp.com"
@@ -205,11 +232,14 @@ if __name__ == '__main__':
             if is_current_host:
                 cmd = "cp " + src_log + "  " + desc_log
             else:
+                if os.path.exists(desc_log):
+                    print "exists path", desc_log, "skip"
+                    continue
                 cmd = 'scp root@' + ip + ":" + src_log + "  " + desc_log
 
             print cmd
             print os.popen(cmd).read()
-    exit(0)
+    # exit(0)
     # / data / log / postCounts_03 - 23_15.log
     if args_lg != 2:
         print args_lg, "params err must use : xxx.py  postPVLogPath  postCountLog"
