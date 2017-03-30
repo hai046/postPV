@@ -296,9 +296,9 @@ if __name__ == '__main__':
     key = "z.hplt"
     codis.delete(key)
     exit(0)
-    # logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
+    logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.zadd(key, **score_result)
-    # logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
+    logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.close()
     cost_time = datetime.datetime.now() - start_time
     print "cost time", cost_time
