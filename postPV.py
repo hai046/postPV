@@ -7,8 +7,8 @@ import sys
 import datetime
 
 from JiemoCodis import JimeoCodis
-from JiemoConfig import Config
 from Jiemo_logger import Logger
+from JiemoConfig import Config
 
 reload(sys)
 # 2017/3/23 10:15
@@ -78,7 +78,7 @@ def timeDescFactor(currentTime):
     pass
 
 
-def readPVLog(baseDir, postCountLog):
+def readPVLog(log_paths, postCountLog):
     # # 开始计算权值
     f = open(postCountLog)
     line = f.readline()
@@ -131,12 +131,11 @@ def readPVLog(baseDir, postCountLog):
     pv_counts = {};
     post_types = {}
     max_pv_count = 1;
-    for postPVLog in os.listdir(baseDir):
-        f = open(os.path.join(baseDir, postPVLog))
-
-        if postPVLog.startswith("."):
+    for postPVLog in log_paths:
+        if postPVLog.startswith(".") or not os.path.exists(os.path.join(baseDir, postPVLog)):
             logger.info("skip file %s", f.name)
             continue
+        f = open(os.path.join(baseDir, postPVLog))
         logger.info("read file %s", f.name)
 
         line = f.readline().strip()
@@ -282,8 +281,8 @@ if __name__ == '__main__':
         pass
 
     baseDir = "/data/postPV"
-    initPVLog(baseDir)
-    score_result = readPVLog(baseDir, initPostList(baseDir))
+
+    score_result = readPVLog(initPVLog(baseDir), initPostList(baseDir))
     codis = JimeoCodis().getCodis();
     # 存储处理
     key = "z.hplt"
