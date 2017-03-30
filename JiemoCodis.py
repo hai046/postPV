@@ -14,7 +14,7 @@ import JiemoConfig
 class JimeoCodis:
     def getCodis(self):
         c = JiemoConfig.Config()
-        proxyPath = "/zk/podis/db_jiemo/proxy"
+        proxyPath = "/zk/codis/db_jiemo/proxy"
         if not c.isProductionEnvironment:
             proxyPath = "/zk/codis/db_jiemoapp-test/proxy"
 
