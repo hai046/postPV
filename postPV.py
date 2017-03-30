@@ -274,12 +274,6 @@ def initPostList(baseDir):
 if __name__ == '__main__':
 
     Logger();
-    codis = JimeoCodis().getCodis();
-    # 存储处理
-    key = "z.hplt"
-
-    codis.delete(key)
-    exit(0)
 
     start_time = datetime.datetime.now()
     PRINT_INFO = len(sys.argv) > 1;
@@ -296,6 +290,12 @@ if __name__ == '__main__':
         print "没有结果"
         logger.info("没有结果")
         exit(0)
+
+    codis = JimeoCodis().getCodis();
+    # 存储处理
+    key = "z.hplt"
+    codis.delete(key)
+    exit(0)
     # logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.zadd(key, **score_result)
     # logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
