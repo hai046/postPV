@@ -278,7 +278,7 @@ if __name__ == '__main__':
     # 存储处理
     key = "z.hplt"
 
-    codis.zremrangebyscore(key, "inf", "+inf")
+    codis.delete(key)
     exit(0)
 
     start_time = datetime.datetime.now()
@@ -291,7 +291,6 @@ if __name__ == '__main__':
     baseDir = "/data/postPV"
 
     score_result = readPVLog(initPVLog(baseDir), initPostList(baseDir))
-
 
     if len(score_result) < 1:
         print "没有结果"
