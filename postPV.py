@@ -78,7 +78,7 @@ def timeDescFactor(currentTime):
     pass
 
 
-def readPVLog(baseDir, postCountLog):
+def readPVLog(log_paths, postCountLog):
     # # 开始计算权值
     f = open(postCountLog)
     line = f.readline()
@@ -131,7 +131,7 @@ def readPVLog(baseDir, postCountLog):
     pv_counts = {};
     post_types = {}
     max_pv_count = 1;
-    for postPVLog in os.listdir(baseDir):
+    for postPVLog in log_paths:
         f = open(os.path.join(baseDir, postPVLog))
 
         if postPVLog.startswith("."):
@@ -221,6 +221,7 @@ def initPVLog(baseDir):
 
     currentIP = os.popen("ifconfig").read()
 
+    log_paths = [];
     for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
                                    socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
         ip = str(info[4][0])
@@ -229,6 +230,7 @@ def initPVLog(baseDir):
         for i in range(0, 4):
             date_format = (start_time + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
             desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
+            log_paths.append(desc_log)
             src_log = ""
             if i == 0:
                 src_log = "/data/log/jiemo-api/postPV/postPV.log"
@@ -246,6 +248,16 @@ def initPVLog(baseDir):
 
             logger.info(cmd)
             logger.info(os.popen(cmd).read())
+
+    for f in os.listdir(baseDir):
+        f = os.path.join(baseDir, f);
+        print f
+        if f in log_paths:
+            continue
+        else:
+            os.remove(f)
+        pass
+    return log_paths
     pass
 
 
@@ -271,9 +283,7 @@ if __name__ == '__main__':
 
     baseDir = "/data/postPV"
 
-    initPVLog(baseDir)
-
-    score_result = readPVLog(baseDir, initPostList(baseDir))
+    score_result = readPVLog(initPVLog(baseDir), initPostList(baseDir))
     codis = JimeoCodis().getCodis();
     # 存储处理
     key = "z.hplt"
