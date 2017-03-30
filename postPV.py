@@ -295,7 +295,6 @@ if __name__ == '__main__':
     # 存储处理
     key = "z.hplt"
     codis.delete(key)
-    exit(0)
     logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.zadd(key, **score_result)
     logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
