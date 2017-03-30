@@ -285,8 +285,8 @@ if __name__ == '__main__':
     score_result = readPVLog(initPVLog(baseDir), initPostList(baseDir))
     codis = JimeoCodis().getCodis();
     # 存储处理
-    key = "z.hplt"
-    codis.delete(key)
+    key = ["z.hplt"]
+    codis.delete(*key)
 
     if len(score_result) < 1:
         print "没有结果"
