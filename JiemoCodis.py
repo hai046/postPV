@@ -15,7 +15,7 @@ class JimeoCodis:
     def getCodis(self):
         c = JiemoConfig.Config()
         proxyPath = "/zk/podis/db_jiemo/proxy"
-        if not c._isProductionEnvironment:
+        if not c.isProductionEnvironment:
             proxyPath = "/zk/codis/db_jiemoapp-test/proxy"
 
         client = codis.BfdCodis("zk.d.jiemoapp.com:2181", proxyPath)
