@@ -272,7 +272,15 @@ def initPostList(baseDir):
 
 
 if __name__ == '__main__':
+
     Logger();
+    codis = JimeoCodis().getCodis();
+    # 存储处理
+    key = "z.hplt"
+
+    codis.zremrangebyscore(key, "inf", "+inf")
+    exit(0)
+
     start_time = datetime.datetime.now()
     PRINT_INFO = len(sys.argv) > 1;
     if not Config().isProductionEnvironment():
@@ -283,11 +291,7 @@ if __name__ == '__main__':
     baseDir = "/data/postPV"
 
     score_result = readPVLog(initPVLog(baseDir), initPostList(baseDir))
-    codis = JimeoCodis().getCodis();
-    # 存储处理
-    key = "z.hplt"
 
-    codis.zremrangebyscore(key, "inf", "+inf")
 
     if len(score_result) < 1:
         print "没有结果"

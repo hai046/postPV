@@ -14,5 +14,5 @@ class Logger:
     def __init__(self, logDir="/data/log/postPV"):
         if not os.path.exists(logDir):
             os.makedirs(logDir)
-        logging.basicConfig(filename=os.path.join(logDir, "main.log"), level=logging.INFO,
+        logging.basicConfig(filename=os.path.join(logDir, "main.log"), level=logging.DEBUG,
                             format='[%(asctime)s %(levelname)s %(process)d %(filename)s %(lineno)d] - %(message)s')
