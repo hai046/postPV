@@ -298,8 +298,12 @@ if __name__ == '__main__':
     logger.info("before %s", codis.zrangebyscore(key, "-inf", "+inf"));
     codis.zadd(key, **score_result)
     logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
-    codis.close()
+
     cost_time = datetime.datetime.now() - start_time
+    desc = "更新时间->" + str(datetime.datetime.now()) + "   更新耗时—>" + str(cost_time)
+    codis.set("z.hplDesc", desc)
+
+    codis.close()
     print "cost time", cost_time
     logger.info("cost time %s", cost_time)
     exit(0)
