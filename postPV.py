@@ -214,6 +214,9 @@ def readPVLog(log_paths, postCountLog):
 def initPVLog(baseDir):
     host = "cluster.d.jiemoapp.com"
 
+    if not Config().isProductionEnvironment():
+        host = "10.10.5.222"
+
     # os.system("rm -rf " + baseDir)
     if not os.path.exists(baseDir):
         os.makedirs(baseDir)
