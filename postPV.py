@@ -303,8 +303,8 @@ if __name__ == '__main__':
     logger.info("after %s", codis.zrangebyscore(key, "-inf", "+inf"));
 
     cost_time = datetime.datetime.now() - start_time
-    desc = "共计" + str(len(score_result.items)) + "条数据   上次更新时间->" + str(datetime.datetime.now()) + "   更新耗时—>" + str(
-        cost_time)
+    desc = "共计{0}条数据   上次更新时间->{1}   更新耗时—>{2}".format(str(len(score_result)), str(datetime.datetime.now()), str(
+        cost_time))
     codis.set("z.hplDesc", desc)
 
     codis.close()
