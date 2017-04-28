@@ -12,12 +12,14 @@ import JiemoConfig
 
 
 class JimeoCodis:
-    def getCodis(self):
+    def getCodis(self, debug=False):
         c = JiemoConfig.Config()
         proxyPath = "/zk/codis/db_jiemo/proxy"
-        if not c.isProductionEnvironment:
+        if not c.isProductionEnvironment():
             proxyPath = "/zk/codis/db_jiemoapp-test/proxy"
 
+        if debug:
+            print "isProductionEnvironment=", c.isProductionEnvironment(), "  proxyPath =", proxyPath
         client = codis.BfdCodis("zk.d.jiemoapp.com:2181", proxyPath)
 
         return client
