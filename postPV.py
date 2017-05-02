@@ -167,7 +167,7 @@ def readPVLog(log_paths, postCountLog):
             if count > 200:
                 break
             count += 1;
-            print "|", count, "|", "[" + k + "](https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|"
+            print "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|"
 
     # 开始求权值排名
     score_result = {}
@@ -201,7 +201,7 @@ def readPVLog(log_paths, postCountLog):
             count += 1
             # if post_types[k] != 10:
             #     continue
-            print "|", count, "|", "[" + k + "](https://sol.jiemosrc.com/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
+            print "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
                 pv_counts[k], "|", post_score[k], "|", \
                 pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
                 timeDescFactor(post_create_times[k]), "|", post_types[k], "|"
