@@ -188,7 +188,9 @@ def readPVLog(log_paths, postCountLog):
                                                                       maxPVCount=max_pv_count) * v / pvc
             if sv <= 0:
                 continue
-            print POST_TYPE_SCORE[post_types[k]]
+            bs = POST_TYPE_SCORE[post_types[k]];
+            if bs <= 0:
+                continue;
             score_result[k] = sv * POST_TYPE_SCORE[post_types[k]]
             if PRINT_INFO:
                 count += 1
