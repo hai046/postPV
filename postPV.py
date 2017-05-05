@@ -243,7 +243,7 @@ def initPVLog(baseDir):
                 src_log = "/data/log/jiemo-api/postPV/postPV.log"
             else:
                 src_log = "/data/log/jiemo-api/postPV/postPV." + date_format
-                if os.path.exists(desc_log):
+                if i > 1 and os.path.exists(desc_log):
                     print "exists path", desc_log, "skip"
                     continue
 
