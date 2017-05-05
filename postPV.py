@@ -81,7 +81,7 @@ def timeDescFactor(currentTime):
 
 
 def readPVLog(log_paths, postCountLog):
-    # # 开始计算权值
+    print "开始计算权值"
     f = open(postCountLog)
     line = f.readline()
     post_score = {}
