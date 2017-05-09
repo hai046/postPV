@@ -221,7 +221,7 @@ def initPVLog(baseDir):
 
     if not Config().isProductionEnvironment():
         host = "10.10.5.222"
-
+    logger.info(os.popen("ping -c 4 %s".format(host)).read())
     # os.system("rm -rf " + baseDir)
     if not os.path.exists(baseDir):
         os.makedirs(baseDir)
