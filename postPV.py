@@ -246,7 +246,7 @@ def initPVLog(baseDir):
     if not os.path.exists(baseDir):
         os.makedirs(baseDir)
 
-    currentIP = os.popen("ifconfig").read()
+    currentIP = "10.44.201.101"
 
     log_paths = [];
     for info in socket.getaddrinfo(host, 80, socket.AF_UNSPEC,
