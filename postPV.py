@@ -189,7 +189,8 @@ def readPVLog(log_paths, postCountLog):
             if count > 200:
                 break
             count += 1;
-            loggerMarkdown.info("|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|")
+            loggerMarkdown.info("%s%d%s%s%s%d%s", "|", count, "|",
+                                "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|")
 
     # 开始求权值排名
     score_result = {}
@@ -216,17 +217,18 @@ def readPVLog(log_paths, postCountLog):
             score_result[k] = sv * POST_TYPE_SCORE[post_types[k]]
             if PRINT_INFO:
                 count += 1
-                loggerMarkdown.info("|", count, "|", k, "|", v, "|")
+                loggerMarkdown.info("%s%d%s%s%s%d%s", "|", count, "|", k, "|", v, "|")
 
     if PRINT_INFO:
         count = 0;
         loggerMarkdown.info("\n|计算后权值排名|postId|score|totalPVCount|recommdPV|totalScore|pvRate|timeDesRate|postType|")
-        loggerMarkdown.info("|-|-|-|-|-|-|-|-|")
+        loggerMarkdown.info("|-|-|-|-|-|-|-|-|-|")
         for k, v in sorted(score_result.items(), lambda x, y: cmp(float(x[1]), float(y[1])), reverse=True):
             count += 1
             # if post_types[k] != 10:
             #     continue
-            loggerMarkdown.info("|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
+            loggerMarkdown.info("%s %d %s %s %s %d %s %d %s %d %s %d %s %d %s %d %s %s %s",
+                                "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
                                 pv_counts[k], "|", getMapValue(hotRecommendPV, k), "|", post_score[k], "|", \
                                 pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
                                 timeDescFactor(post_create_times[k]), "|", post_types[k], "|")
