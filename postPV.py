@@ -19,6 +19,7 @@ import time
 
 logger = logging.getLogger()
 
+loggerMarkdown = logging.getLogger("markdown")
 # all(0, AppVer.VER_LATEST, "post"), // 这个是获取的时候使用，如果是all
 # 全部都获取出来，为以后朋友圈预留
 # images(1, AppVer.VER_INIT, "照片"), // 相册post
@@ -182,22 +183,22 @@ def readPVLog(log_paths, postCountLog):
     logger.info("max_pv_count %d", max_pv_count)
     count = 0;
     if PRINT_INFO:
-        print "|PV排名|postId|PV|"
-        print "|-|-|-|"
-        for k, v in sorted(pv_counts.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
+        loggerMarkdown.info("|PV排名|postId|PV|")
+        loggerMarkdown.info("|-|-|-|")
+        for k, v in sorted(pv_counts.items(), lambda x, y: cmp(int(x[1]), int(y[1])), reverse=True):
             if count > 200:
                 break
             count += 1;
-            print "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|"
+            loggerMarkdown.info("|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|")
 
     # 开始求权值排名
     score_result = {}
     if PRINT_INFO:
-        print "\n|权值求和|postId|score|"
-        print "|-|-|-|"
+        loggerMarkdown.info("\n|权值求和|postId|score|")
+        loggerMarkdown.info("|-|-|-|")
         count = 0;
 
-    for k, v in sorted(post_score.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
+    for k, v in sorted(post_score.items(), lambda x, y: cmp(int(x[1]), int(y[1])), reverse=True):
         if v >= MIN_SCORE and pv_counts.has_key(k):
             pvc = pv_counts[k]
             if pvc < MIN_PV_COUNT:
@@ -215,20 +216,20 @@ def readPVLog(log_paths, postCountLog):
             score_result[k] = sv * POST_TYPE_SCORE[post_types[k]]
             if PRINT_INFO:
                 count += 1
-                print "|", count, "|", k, "|", v, "|"
+                loggerMarkdown.info("|", count, "|", k, "|", v, "|")
 
     if PRINT_INFO:
         count = 0;
-        print "\n|计算后权值排名|postId|score|totalPVCount|recommdPV|totalScore|pvRate|timeDesRate|postType|"
-        print "|-|-|-|-|-|-|-|-|"
-        for k, v in sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
+        loggerMarkdown.info("\n|计算后权值排名|postId|score|totalPVCount|recommdPV|totalScore|pvRate|timeDesRate|postType|")
+        loggerMarkdown.info("|-|-|-|-|-|-|-|-|")
+        for k, v in sorted(score_result.items(), lambda x, y: cmp(float(x[1]), float(y[1])), reverse=True):
             count += 1
             # if post_types[k] != 10:
             #     continue
-            print "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
-                pv_counts[k], "|", getMapValue(hotRecommendPV, k), "|", post_score[k], "|", \
-                pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
-                timeDescFactor(post_create_times[k]), "|", post_types[k], "|"
+            loggerMarkdown.info("|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
+                                pv_counts[k], "|", getMapValue(hotRecommendPV, k), "|", post_score[k], "|", \
+                                pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
+                                timeDescFactor(post_create_times[k]), "|", post_types[k], "|")
             # if count > 500:
             #     break
     return score_result

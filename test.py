@@ -2,6 +2,7 @@
 import sys
 
 import datetime
+import logging
 
 from JiemoCodis import JimeoCodis
 
@@ -9,10 +10,9 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 # 2017/4/27 18:10
 __author__ = 'haizhu'
+from Jiemo_logger import Logger
 
-print str(datetime.datetime.now())
+Logger();
+logger = logging.getLogger("markdown")
 
-codis = JimeoCodis().getCodis(debug=True);
-# 存储处理
-key = "z.hplt"
-codis.delete(key)
+logger.info("|name|value|")
