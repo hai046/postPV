@@ -227,7 +227,7 @@ def readPVLog(log_paths, postCountLog):
             count += 1
             # if post_types[k] != 10:
             #     continue
-            loggerMarkdown.info("%s %d %s %s %s %d %s %d %s %d %s %d %s %d %s %d %s %s %s",
+            loggerMarkdown.info("%s %d %s %s %s %f %s %d %s %d %s %d %s %f %s %f %s %s %s",
                                 "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
                                 pv_counts[k], "|", getMapValue(hotRecommendPV, k), "|", post_score[k], "|", \
                                 pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
