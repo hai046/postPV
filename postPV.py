@@ -80,8 +80,16 @@ def timeDescFactor(currentTime):
     pass
 
 
+def getMapValue(collections, k):
+    if collections.has_key(k):
+        return collections[k];
+    return 0;
+    pass
+
+
 def readPVLog(log_paths, postCountLog):
-    print "开始计算权值"
+    print "开始计算权值", postCountLog
+
     f = open(postCountLog)
     line = f.readline()
     post_score = {}
@@ -132,6 +140,8 @@ def readPVLog(log_paths, postCountLog):
     # 求每个用户的权值和
     pv_counts = {};
     post_types = {}
+    hotRecommendPV = {}
+
     max_pv_count = 1;
     for postPVLog in log_paths:
         if postPVLog.startswith(".") or not os.path.exists(os.path.join(baseDir, postPVLog)):
@@ -144,10 +154,17 @@ def readPVLog(log_paths, postCountLog):
         while line:
             bases = line.split("|")
             line = f.readline().strip()
-            if len(bases) == 2:
+            if len(bases) >= 2:
                 datas = bases[1].split(" ")
                 postId = (datas[0])
                 if post_score.has_key(postId):
+
+                    if len(datas) >= 3:
+                        if hotRecommendPV.has_key(postId):
+                            hotRecommendPV[postId] += 1;
+                        else:
+                            hotRecommendPV[postId] = 1;
+
                     postType = int(datas[1])
                     post_types[postId] = postType
                     if pv_counts.has_key(postId):
@@ -200,14 +217,14 @@ def readPVLog(log_paths, postCountLog):
 
     if PRINT_INFO:
         count = 0;
-        print "\n|计算后权值排名|postId|score|pv|totalScore|pvRate|timeDesRate|postType|"
+        print "\n|计算后权值排名|postId|score|totalPVCount|recommdPV|totalScore|pvRate|timeDesRate|postType|"
         print "|-|-|-|-|-|-|-|-|"
         for k, v in sorted(score_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True):
             count += 1
             # if post_types[k] != 10:
             #     continue
             print "|", count, "|", "[" + k + "](/post/search/byIDorUUID?postId=" + k + ")", "|", v, "|", \
-                pv_counts[k], "|", post_score[k], "|", \
+                pv_counts[k], "|", getMapValue(hotRecommendPV, k), "|", post_score[k], "|", \
                 pvCountFactor(currentPVCount=pv_counts[k], maxPVCount=max_pv_count), "|", \
                 timeDescFactor(post_create_times[k]), "|", post_types[k], "|"
             # if count > 500:
@@ -221,7 +238,8 @@ def initPVLog(baseDir):
 
     if not Config().isProductionEnvironment():
         host = "10.10.5.222"
-    logger.info(os.popen("ping -c 4 %s".format(host)).read())
+    cmd = "ping -c 1 {0}".format(host);
+    logger.info(os.popen(cmd).read())
     # os.system("rm -rf " + baseDir)
     if not os.path.exists(baseDir):
         os.makedirs(baseDir)
