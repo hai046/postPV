@@ -63,6 +63,8 @@ MIN_SCORE = 20;
 
 MIN_PV_COUNT = 100
 
+lockfile = "/data/postPV/lock"
+
 
 # pv影响影响因子 例如pv越大数值越可靠 范围[50,100]
 def pvCountFactor(currentPVCount, maxPVCount):
@@ -297,7 +299,21 @@ def initPostList(baseDir):
     pass
 
 
+def unLock():
+    pass
+
+
 if __name__ == '__main__':
+
+    # lock
+    try:
+        fd = os.open(lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        os.close(fd)
+    except OSError as e:
+        print "获取锁失败", e
+        exit(-1)
+
+    fd = os.open(lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
 
     Logger();
 
@@ -333,4 +349,7 @@ if __name__ == '__main__':
     codis.close()
     print "cost time", cost_time
     logger.info("cost time %s", cost_time)
+
+    # 解锁
+    os.close(fd)
     exit(0)
