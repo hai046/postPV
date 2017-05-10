@@ -313,8 +313,6 @@ if __name__ == '__main__':
         print "获取锁失败", e
         exit(-1)
 
-    fd = os.open(lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
-
     Logger();
 
     start_time = datetime.datetime.now()
