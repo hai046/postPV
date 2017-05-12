@@ -73,7 +73,7 @@ def pvCountFactor(currentPVCount, maxPVCount):
     # y = (1 + sin(π * ((x - 2500) / 5000)))
     # return 100 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2)
     # 范围[30，100]
-    return 80 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2) + 20
+    return 90 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2) + 10
 
     pass
 
