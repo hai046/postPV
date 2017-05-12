@@ -50,7 +50,7 @@ POST_TYPE_SCORE = {1: 1.,
                    }
 
 # 每个操作对应的基础值
-POST_FORWORD_BASE_SCORE = 4.0;
+POST_FORWORD_BASE_SCORE = 3.0;
 POST_COMMENT_BASE_SCORE = 2.0
 POST_FAV_BASE_SCORE = 1.0
 
@@ -71,7 +71,10 @@ lockfile = "/data/postPV/lock"
 def pvCountFactor(currentPVCount, maxPVCount):
     # print currentPVCount, maxPVCount
     # y = (1 + sin(π * ((x - 2500) / 5000)))
-    return 100 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2)
+    # return 100 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2)
+    # 范围[30，100]
+    return 70 * ((1 + math.sin(math.pi * ((currentPVCount * 1.) / maxPVCount - 0.5))) / 2) + 30
+
     pass
 
 
