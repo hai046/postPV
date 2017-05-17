@@ -13,12 +13,12 @@ __author__ = 'haizhu'
 
 
 class Logger:
-    def __init__(self, logDir="/data/log/jiemo-postPV"):
-        self._logDir = logDir
-        if not os.path.exists(logDir):
-            os.makedirs(logDir)
+    def __init__(self, log_dir="/data/log/jiemo-postPV"):
+        self._logDir = log_dir
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
         logging.basicConfig(
-            filename=os.path.join(logDir, "main.log_{0}".format((datetime.datetime.now()).strftime("%Y-%m-%d"))),
+            filename=os.path.join(log_dir, "main.log_{0}".format((datetime.datetime.now()).strftime("%Y-%m-%d"))),
             level=logging.INFO,
             format='[%(asctime)s %(levelname)s %(process)d %(filename)s %(lineno)d] - %(message)s')
 
