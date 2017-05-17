@@ -82,7 +82,7 @@ def timeDescFactor(currentTime):
     # (cos(x * π / 168) + 1) / 2
     if MAX_MINU <= currentTime:
         return 0
-    return 100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2)
+    return math.pow(100 * ((math.cos(currentTime * math.pi / MAX_MINU) + 1) / 2), 3)
     pass
 
 
