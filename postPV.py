@@ -57,8 +57,9 @@ POST_FAV_BASE_SCORE = 1.0
 # 是否打印中间信息
 PRINT_INFO = False
 
+MAX_DAYS = 2;
 # 时间降序因子 【0，3]天，换算成分钟[0,3*24*60]
-MAX_MINU = 3 * 24 * 60.
+MAX_MINU = MAX_DAYS * 24 * 60.
 
 MIN_SCORE = 20;
 
@@ -260,7 +261,7 @@ def initPVLog(baseDir):
         ip = str(info[4][0])
         is_current_host = currentIP.find(ip) >= 0
 
-        for i in range(0, 4):
+        for i in range(0, MAX_DAYS + 1):
             date_format = (start_time + datetime.timedelta(days=-i)).strftime("%Y-%m-%d")
             desc_log = baseDir + "/postPv." + ip + "_" + date_format + ".log"
             log_paths.append(desc_log)
@@ -296,7 +297,8 @@ def initPVLog(baseDir):
 
 def initPostList(baseDir):
     result_path = os.path.join(baseDir, "postList.log")
-    cmd = "/root/shell/runEx.sh /data/java/jiemo-runner \"com.jiemo.runner.stats.PostScorePVAnalysisRunner 72 " + result_path + "\""
+    cmd = "/root/shell/runEx.sh /data/java/jiemo-runner \"com.jiemo.runner.stats.PostScorePVAnalysisRunner {0}  {1} \"".format(
+        MAX_DAYS * 24, result_path)
     logger.info(cmd)
 
     logger.info(os.popen(cmd).read())
