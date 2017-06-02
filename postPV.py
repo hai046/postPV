@@ -318,6 +318,7 @@ if __name__ == '__main__':
         fd = os.open(lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
         os.close(fd)
     except OSError as e:
+        print os.popen("sh /root/monitor/send_sms.sh '热门异常，请检查grape /opt/postPV/postPV.py' 18611522617").read()
         print "获取锁失败", e
         exit(-1)
 
