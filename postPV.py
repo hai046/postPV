@@ -166,7 +166,12 @@ def readPVLog(log_paths, postCountLog):
                 postId = (datas[0])
                 if post_score.has_key(postId):
 
-                    if len(datas) >= 3:
+                    dlg = len(datas)
+                    if dlg >= 3:
+                        if dlg >= 4 and datas[3] == '0':
+                            ##如果是没有登录的用户，那么就应该不算pv
+                            continue
+
                         if hotRecommendPV.has_key(postId):
                             hotRecommendPV[postId] += 1;
                         else:
