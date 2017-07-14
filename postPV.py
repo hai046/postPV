@@ -168,10 +168,6 @@ def readPVLog(log_paths, postCountLog):
 
                     dlg = len(datas)
                     if dlg >= 3:
-                        if dlg >= 4 and datas[3] == '0':
-                            ##如果是没有登录的用户，那么就应该不算pv
-                            continue
-
                         if hotRecommendPV.has_key(postId):
                             hotRecommendPV[postId] += 1;
                         else:
@@ -318,6 +314,7 @@ def unLock():
 
 if __name__ == '__main__':
 
+    last_failure = False
     # lock
     try:
         fd = os.open(lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
@@ -325,7 +322,9 @@ if __name__ == '__main__':
     except OSError as e:
         print os.popen("sh /root/monitor/send_sms.sh '热门异常，请检查grape /opt/postPV/postPV.py' 18611522617").read()
         print "获取锁失败", e
-        exit(-1)
+        os.remove(lockfile)
+        last_failure = True
+        # exit(-1)
 
     Logger();
 
@@ -364,4 +363,8 @@ if __name__ == '__main__':
 
     # 解锁
     os.close(fd)
+
+    if last_failure:
+        print os.popen("sh /root/monitor/send_sms.sh 'postPV已经自动恢复，不用干预' 18611522617").read()
+
     exit(0)
