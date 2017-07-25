@@ -33,6 +33,9 @@ loggerMarkdown = logging.getLogger("markdown")
 # song(9, AppVer.VER_1_2_80, "音乐"), // 歌曲
 # blog(10, AppVer.VER_1_2_80, "日志"), // 日志
 # customVideo(11, AppVer.VER_1_3_10, "视频"), // 新的视频类型
+# specialFriend(12, AppVer.VER_1_3_30, "特别好友"), // 特别好友
+# recommendTopic(13, AppVer.VER_1_3_90, "分发话题"), // 分发话题
+# link(14, AppVer.VER_1_3_90, "链接"), //
 
 ##每个post类型对应的权值
 POST_TYPE_SCORE = {1: 1.,
